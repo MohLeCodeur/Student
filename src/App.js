@@ -1,25 +1,41 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+import axios from './axios';
 import './App.css';
+import StudentForm from './components/StudentForm';
+import StudentList from './components/StudentList';
+import ExportButtons from './components/ExportButtons';
 
-function App() {
+
+const App = () => {
+  const [students, setStudents] = useState([]);
+  const [editingStudent, setEditingStudent] = useState(null);
+
+  const fetchStudents = () => {
+    axios.get('/api/students')
+      .then((response) => setStudents(response.data));
+  };
+
+  const deleteStudent = (id) => {
+    axios.delete(`/api/students/${id}`)
+      .then(() => fetchStudents());
+  };
+
+  const editStudent = (student) => {
+    setEditingStudent(student);
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Gestion des étudiants</h1>
+      <StudentForm fetchStudents={fetchStudents} editingStudent={editingStudent} setEditingStudent={setEditingStudent} />
+      <StudentList students={students} editStudent={editStudent} deleteStudent={deleteStudent} />
+      <ExportButtons />
     </div>
   );
-}
+};
 
 export default App;
